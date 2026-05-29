@@ -17,3 +17,29 @@ AI-powered chatbot for students.
 - RAG
 - Voice assistant
 - Quiz generator
+
+
+
+# AI Study Assistant
+
+An AI-powered RAG chatbot built using Python and Streamlit.
+
+## Features
+- AI chatbot
+- PDF question answering
+- Quiz generator
+- Notes summarizer
+- RAG architecture
+- ChromaDB vector database
+
+## Technologies Used
+- Python
+- Streamlit
+- OpenRouter API
+- LangChain
+- ChromaDB
+
+## Run Project
+
+```bash
+streamlit run app.py
