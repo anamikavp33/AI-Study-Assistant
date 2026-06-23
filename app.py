@@ -39,6 +39,16 @@ st.set_page_config(
 
 st.title("📘 AI Study Assistant")
 
+st.markdown("""
+### 🤖 Your AI Learning Companion
+
+Upload PDF notes and:
+- Ask questions
+- Generate summaries
+- Create quizzes
+- Learn faster with AI
+""")
+
 st.write("Upload PDF notes and chat with AI.")
 
 # =========================
@@ -57,6 +67,20 @@ quiz_button = st.sidebar.button("📝 Generate Quiz")
 summary_button = st.sidebar.button("📘 Summarize Notes")
 
 clear_button = st.sidebar.button("🗑️ Clear Chat")
+
+if st.session_state.get("messages"):
+
+    chat_text = "\n\n".join(
+        [f"{msg['role'].upper()}: {msg['content']}"
+         for msg in st.session_state.messages]
+    )
+
+    st.sidebar.download_button(
+        label="📥 Download Chat",
+        data=chat_text,
+        file_name="chat_history.txt",
+        mime="text/plain"
+    )
 
 # =========================
 # SESSION STATE
@@ -116,6 +140,10 @@ if uploaded_file is not None:
 
         st.sidebar.success("✅ PDF processed successfully!")
 
+        st.sidebar.info(f"📄 Pages: {len(pdf_reader.pages)}")
+
+        st.sidebar.info(f"🧩 Chunks Created: {len(chunks)}")
+
 # =========================
 # SUMMARY FEATURE
 # =========================
@@ -133,6 +161,9 @@ if summary_button and st.session_state.vector_db:
 
         for doc in docs:
             context += doc.page_content + "\n"
+
+        with st.expander("📄 Retrieved Context"):
+            st.write(context)
 
         prompt = f"""
         Summarize these notes clearly for students.
@@ -156,6 +187,14 @@ if summary_button and st.session_state.vector_db:
         st.subheader("📘 Notes Summary")
 
         st.write(summary)
+
+        st.download_button(
+            label="📥 Download Summary",
+            data=summary,
+            file_name="summary.txt",
+            mime="text/plain"
+        )
+
 
 # =========================
 # QUIZ GENERATOR
@@ -246,18 +285,23 @@ if user_input:
 
         # Prompt
         prompt = f"""
-        You are an AI Study Assistant.
+       
+You are an intelligent AI Study Assistant.
 
-        Answer clearly for students.
+Instructions:
+1. Explain concepts in simple student-friendly language.
+2. Use bullet points whenever appropriate.
+3. Give examples if helpful.
+4. If the answer exists in the PDF context, prioritize that information.
+5. If the PDF does not contain the answer, use your general knowledge.
+6. Keep answers clear, structured, and easy to understand.
 
-        Use the provided PDF context if relevant.
+PDF Context:
+{context}
 
-        Context:
-        {context}
-
-        Question:
-        {user_input}
-        """
+Question:
+{user_input}
+"""
 
         # AI Response
         completion = client.chat.completions.create(
